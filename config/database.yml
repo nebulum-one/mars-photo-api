@@ -1,19 +1,15 @@
-development:
+default: &default
   adapter: postgresql
+  encoding: unicode
   pool: 5
   timeout: 5000
-  database: mars_curiosity_development
-  password: <%= ENV["RAILS_DB_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
+
+development:
+  <<: *default
 
 test:
-  adapter: postgresql
-  pool: 5
-  timeout: 5000
-  database: mars_curiosity_test
-  password: <%= ENV["RAILS_DB_PASSWORD"] %>
+  <<: *default
 
 production:
-  adapter: postgresql
-  pool: 5
-  timeout: 5000
-  database: mars_curiosity_production
+  <<: *default
