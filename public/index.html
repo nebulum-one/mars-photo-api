@@ -1,103 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nebulum Mars Rovers</title>
-    <style>
-      body {
-        font-family: system-ui, sans-serif;
-        background: #0c0c0c;
-        color: #eaeaea;
-        text-align: center;
-        padding: 3rem 1rem;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nebulum Mars Rovers API</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #f5f5f5;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    header {
+      padding: 4rem 0 3rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #d9f19e 0%, #a8d96e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 1.25rem;
+      color: #aaa;
+      margin-bottom: 0.5rem;
+    }
+    .base-url {
+      display: inline-block;
+      background: #171717;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      color: #d9f19e;
+      margin-top: 1rem;
+    }
+    .rovers-section {
+      padding: 3rem 0;
+    }
+    .section-title {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #d9f19e;
+    }
+    .rovers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+    .rover-card {
+      background: #171717;
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .rover-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(217, 241, 158, 0.15);
+    }
+    .rover-img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
+    }
+    .rover-content {
+      padding: 1.5rem;
+    }
+    .rover-name {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #d9f19e;
+    }
+    .rover-stats {
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+    .endpoints-section {
+      padding: 3rem 0 4rem;
+    }
+    .endpoint {
+      background: #171717;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid #d9f19e;
+    }
+    .endpoint-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      color: #d9f19e;
+    }
+    .endpoint-url {
+      background: #121212;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #f5f5f5;
+      margin-bottom: 1rem;
+      word-break: break-all;
+      border: 1px solid #2a2a2a;
+    }
+    .endpoint-example {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .example-img {
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 2px solid #2a2a2a;
+    }
+    .try-it-btn {
+      display: inline-block;
+      background: #d9f19e;
+      color: #121212;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+    }
+    .try-it-btn:hover {
+      background: #c5e085;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(217, 241, 158, 0.3);
+    }
+    footer {
+      text-align: center;
+      padding: 3rem 0;
+      color: #666;
+      border-top: 1px solid #2a2a2a;
+    }
+    footer a {
+      color: #d9f19e;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 768px) {
       h1 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+        font-size: 2rem;
       }
-      p.subtitle {
-        color: #aaa;
-        margin-bottom: 2rem;
+      .endpoint-example {
+        grid-template-columns: 1fr;
       }
-      .rover {
-        display: inline-block;
-        background: #1a1a1a;
-        border-radius: 1rem;
-        padding: 2rem;
-        margin: 1rem;
-        width: 300px;
-        box-shadow: 0 0 20px rgba(255,255,255,0.05);
+      .rovers-grid {
+        grid-template-columns: 1fr;
       }
-      .rover img {
-        width: 100%;
-        border-radius: 0.5rem;
-      }
-      .loading {
-        color: #888;
-        font-style: italic;
-      }
-      footer {
-        margin-top: 3rem;
-        font-size: 0.85rem;
-        color: #666;
-      }
-      a {
-        color: #50b3ff;
-        text-decoration: none;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Explore Mars with Nebulum</h1>
-    <p class="subtitle">
-      Live Mars Rover photos from <strong>Perseverance</strong> and
-      <strong>Curiosity</strong> — powered by
-      <a href="https://rovers.nebulum.one" target="_blank">rovers.nebulum.one</a>.
-    </p>
-
-    <div id="rovers">
-      <p class="loading">Loading rover data...</p>
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Nebulum Mars Rovers API</h1>
+      <p class="subtitle">Access real-time Mars rover photos from NASA missions</p>
+      <div class="base-url">https://rovers.nebulum.one/api/v1</div>
     </div>
+  </header>
 
-    <footer>
-      Built by <a href="https://nebulum.one" target="_blank">Nebulum</a> • Data from NASA APIs
-    </footer>
+  <section class="rovers-section">
+    <div class="container">
+      <h2 class="section-title">Active Rovers</h2>
+      <div class="rovers-grid">
+        <div class="rover-card">
+          <img src="https://web-production-3cafe.up.railway.app/explore/images/Perseverance_rover.jpg" alt="Perseverance Rover" class="rover-img">
+          <div class="rover-content">
+            <h3 class="rover-name">Perseverance</h3>
+            <p class="rover-stats">Landed: February 18, 2021<br>Mission: Search for signs of ancient life</p>
+          </div>
+        </div>
+        <div class="rover-card">
+          <img src="https://web-production-3cafe.up.railway.app/explore/images/Curiosity_rover.jpg" alt="Curiosity Rover" class="rover-img">
+          <div class="rover-content">
+            <h3 class="rover-name">Curiosity</h3>
+            <p class="rover-stats">Landed: August 6, 2012<br>Mission: Study Mars' climate and geology</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-      const rovers = ["perseverance", "curiosity"];
-      const baseURL = "https://rovers.nebulum.one/api/v1/rovers/";
+  <section class="endpoints-section">
+    <div class="container">
+      <h2 class="section-title">API Endpoints</h2>
 
-      async function loadRovers() {
-        const container = document.getElementById("rovers");
-        container.innerHTML = "";
-        for (const rover of rovers) {
-          try {
-            const res = await fetch(`${baseURL}${rover}`);
-            const data = await res.json();
-            const name = data.rover?.name || rover;
-            const totalPhotos = data.rover?.total_photos || 0;
-            const imgSrc =
-              rover === "perseverance"
-                ? "https://mars.nasa.gov/system/news_items/main_images/9287_PIA25797-FigureA-web.jpg"
-                : "https://mars.nasa.gov/system/news_items/main_images/9280_PIA25513-FigureA-web.jpg";
+      <div class="endpoint">
+        <h3 class="endpoint-title">Search by Photo ID</h3>
+        <div class="endpoint-url">GET /photos/{id}</div>
+        <p style="color: #aaa; margin-bottom: 1rem;">Retrieve a specific photo by its unique identifier</p>
+        <a href="https://rovers.nebulum.one/api/v1/photos/878" target="_blank" class="try-it-btn">Try Example →</a>
+        <div class="endpoint-example">
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Example Request:</p>
+            <div class="endpoint-url" style="margin: 0;">https://rovers.nebulum.one/api/v1/photos/878</div>
+          </div>
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Sample Image:</p>
+            <img src="https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/00004/ids/edr/browse/edl/EDE_0004_0667288829_514ECM_N0010052EDLC00004_0020LUJ01_1200.jpg" alt="Mars photo" class="example-img">
+          </div>
+        </div>
+      </div>
 
-            const div = document.createElement("div");
-            div.className = "rover";
-            div.innerHTML = `
-              <img src="${imgSrc}" alt="${name}">
-              <h2>${name}</h2>
-              <p>${totalPhotos} photos available</p>
-              <p><a href="https://rovers.nebulum.one/api/v1/rovers/${rover}/photos?sol=1000" target="_blank">View sample JSON</a></p>
-            `;
-            container.appendChild(div);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-      }
+      <div class="endpoint">
+        <h3 class="endpoint-title">Curiosity - Search by Earth Date</h3>
+        <div class="endpoint-url">GET /rovers/curiosity/photos?earth_date={YYYY-MM-DD}</div>
+        <p style="color: #aaa; margin-bottom: 1rem;">Get Curiosity photos from a specific Earth date</p>
+        <a href="https://rovers.nebulum.one/api/v1/rovers/curiosity/photos?earth_date=2015-6-3" target="_blank" class="try-it-btn">Try Example →</a>
+        <div class="endpoint-example">
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Example Request:</p>
+            <div class="endpoint-url" style="margin: 0;">...curiosity/photos?earth_date=2015-6-3</div>
+          </div>
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Sample Image:</p>
+            <img src="https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01715/opgs/edr/fcam/FLB_549757718EDR_F0632086FHAZ00206M_.JPG" alt="Curiosity photo" class="example-img">
+          </div>
+        </div>
+      </div>
 
-      loadRovers();
-    </script>
-  </body>
+      <div class="endpoint">
+        <h3 class="endpoint-title">Curiosity - Search by Sol (Martian Day)</h3>
+        <div class="endpoint-url">GET /rovers/curiosity/photos?sol={sol_number}</div>
+        <p style="color: #aaa; margin-bottom: 1rem;">Get Curiosity photos from a specific Martian sol</p>
+        <a href="https://rovers.nebulum.one/api/v1/rovers/Curiosity/photos?sol=3718" target="_blank" class="try-it-btn">Try Example →</a>
+        <div class="endpoint-example">
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Example Request:</p>
+            <div class="endpoint-url" style="margin: 0;">...curiosity/photos?sol=3718</div>
+          </div>
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Sample Image:</p>
+            <img src="https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/03718/opgs/edr/rcam/RLB_727562857EDR_F0991676RHAZ00337M_.JPG" alt="Curiosity photo" class="example-img">
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <h3 class="endpoint-title">Perseverance - Search by Earth Date</h3>
+        <div class="endpoint-url">GET /rovers/perseverance/photos?earth_date={YYYY-MM-DD}</div>
+        <p style="color: #aaa; margin-bottom: 1rem;">Get Perseverance photos from a specific Earth date</p>
+        <a href="https://rovers.nebulum.one/api/v1/rovers/Perseverance/photos?earth_date=2025-11-06" target="_blank" class="try-it-btn">Try Example →</a>
+        <div class="endpoint-example">
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Example Request:</p>
+            <div class="endpoint-url" style="margin: 0;">...perseverance/photos?earth_date=2025-11-06</div>
+          </div>
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Sample Image:</p>
+            <img src="https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01676/ids/edr/browse/ncam/NLF_1676_0815723491_722ECM_N0802956NCAM13676_04_195J01_1200.jpg" alt="Perseverance photo" class="example-img">
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <h3 class="endpoint-title">Perseverance - Search by Sol (Martian Day)</h3>
+        <div class="endpoint-url">GET /rovers/perseverance/photos?sol={sol_number}</div>
+        <p style="color: #aaa; margin-bottom: 1rem;">Get Perseverance photos from a specific Martian sol</p>
+        <a href="https://rovers.nebulum.one/api/v1/rovers/Perseverance/photos?sol=1676" target="_blank" class="try-it-btn">Try Example →</a>
+        <div class="endpoint-example">
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Example Request:</p>
+            <div class="endpoint-url" style="margin: 0;">...perseverance/photos?sol=1676</div>
+          </div>
+          <div>
+            <p style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Sample Image:</p>
+            <img src="https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01676/ids/edr/browse/ncam/NLF_1676_0815718150_035ECM_N0802790NCAM00501_01_295J01_1200.jpg" alt="Perseverance photo" class="example-img">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>Built by <a href="https://nebulum.one" target="_blank">Nebulum</a> • Data from NASA APIs</p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem;">Free API for developers • No authentication required</p>
+    </div>
+  </footer>
+</body>
 </html>
