@@ -63,27 +63,27 @@ Base URL: https://rovers.nebulum.one/api/v1
 ## By ID
 GET /photos/<id>
 
-### Example: https://rovers.nebulum.one/api/v1/photos/878
+Example: https://rovers.nebulum.one/api/v1/photos/878
 
 ## By Martian sol:
 GET /rovers/<rover>/photos?sol=<sol_number>
 
-### Example: https://rovers.nebulum.one/api/v1/rovers/Curiosity/photos?sol=3718
+Example: https://rovers.nebulum.one/api/v1/rovers/Curiosity/photos?sol=3718
 
 ## By Earth date:
 GET /rovers/<rover>/photos?earth_date=yyyy-mm-dd
 
-### Example: https://rovers.nebulum.one/api/v1/rovers/Perseverance/photos?earth_date=2025-11-06
+Example: https://rovers.nebulum.one/api/v1/rovers/Perseverance/photos?earth_date=2025-11-06
 
 ## Filter by camera:
 GET /rovers/<rover>/photos?sol=<sol_number>&camera=<camera_abbr>
 
-### Example:https://rovers.nebulum.one/api/v1/rovers/perseverance/photos?sol=1676&camera=NAVCAM_LEFT
+Example: https://rovers.nebulum.one/api/v1/rovers/perseverance/photos?sol=1676&camera=NAVCAM_LEFT
 
 ## Latest photos:
 GET /rovers/<rover>/latest_photos
 
-### Example: https://rovers.nebulum.one/api/v1/rovers/Perseverance/latest_photos
+Example: https://rovers.nebulum.one/api/v1/rovers/Perseverance/latest_photos
 
 
 ## Mission Manifest Endpoint
