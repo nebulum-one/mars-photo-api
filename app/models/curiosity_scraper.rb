@@ -9,7 +9,9 @@ class CuriosityScraper
   end
 
   def scrape
+    puts "🚀 Starting scrape for Curiosity..."
     create_photos
+    puts "✅ Finished scraping Curiosity."
   end
 
   def collect_links
@@ -17,17 +19,33 @@ class CuriosityScraper
     response = JSON.parse(URI.open(BASE_URL + "?order=sol%20desc,instrument_sort%20asc,sample_type_sort%20asc,%20date_taken%20desc&per_page=1&page=0&condition_1=msl:mission").read)
     latest_sol_available = response["items"].first["sol"].to_i
     latest_sol_scraped = rover.photos.maximum(:sol).to_i
-    sols_to_scrape = (latest_sol_scraped..latest_sol_available) #.to_a.last(10) # Only fetch the last 10 sols
 
-    sols_to_scrape.map { |sol|
+    puts "📡 Latest sol available: #{latest_sol_available}, last scraped sol: #{latest_sol_scraped}"
+
+    # Determine which sols to scrape
+    if latest_sol_available <= latest_sol_scraped
+      puts "✅ No new sols to scrape for Curiosity."
+      return []
+    end
+
+    sols_to_scrape = ((latest_sol_scraped + 1)..latest_sol_available).to_a
+    puts "🪐 Scraping new sols: #{sols_to_scrape.join(', ')}"
+
+    sols_to_scrape.map do |sol|
       "#{BASE_URL}?order=sol%20desc,instrument_sort%20asc,sample_type_sort%20asc,%20date_taken%20desc&per_page=200&page=0&condition_1=msl:mission&condition_2=#{sol}:sol:in"
-    }
+    end
   end
 
   private
 
   def create_photos
-    collect_links.each do |url|
+    collected = collect_links
+    if collected.empty?
+      puts "⚠️ No new sols detected, skipping photo creation."
+      return
+    end
+
+    collected.each do |url|
       scrape_photo_page(url)
     end
   end
@@ -35,9 +53,14 @@ class CuriosityScraper
   def scrape_photo_page(url)
     begin
       response = JSON.parse(URI.open(url).read)
+      sol = response["items"].first["sol"] rescue nil
+      puts "🧩 Processing sol #{sol} (#{response['items'].size} items)..." if sol
+
       response['items'].each do |image|
-        create_photo(image) if image['extended'] && image['extended']['sample_type'] == 'full'
+        next unless image['extended'] && image['extended']['sample_type'] == 'full'
+        create_photo(image)
       end
+
     rescue OpenURI::HTTPError => e
       puts "HTTP error occurred: #{e.message} for URL: #{url}. Skipping."
     rescue StandardError => e
@@ -47,15 +70,22 @@ class CuriosityScraper
 
   def create_photo(image)
     sol = image['sol']
+    earth_date = image['date_taken']
     camera = camera_from_json(image)
     link = image['https_url']
-    
+
     if camera.is_a?(String)
-      puts "WARNING: Camera not found. Name: #{camera}"
-    else
-      photo = Photo.find_or_initialize_by(sol: sol, camera: camera, img_src: link, rover: rover)
-      photo.log_and_save_if_new
+      puts "⚠️ Camera not found: #{camera}"
+      return
     end
+
+    photo = Photo.find_or_initialize_by(sol: sol, camera: camera, img_src: link, rover: rover)
+    if photo.new_record?
+      photo.log_and_save_if_new
+      puts "🪐 Added new photo → Sol #{sol}, Earth date #{earth_date}, Camera #{camera.name}"
+    end
+  rescue => e
+    puts "❌ Error creating photo for sol #{sol}: #{e.message}"
   end
 
   def camera_from_json(image)
@@ -63,16 +93,13 @@ class CuriosityScraper
     camera = rover.cameras.find_by(name: camera_name) || rover.cameras.find_by(full_name: camera_name)
 
     if camera.nil?
-      # Log a warning
-      puts "WARNING: Camera not found. Name: #{camera_name}. Adding to database."
-
-      # Add the new camera to the database
+      puts "⚙️ Adding new camera to database: #{camera_name}"
       camera = rover.cameras.create(name: camera_name, full_name: camera_name)
 
       if camera.persisted?
-        puts "New camera added to database: #{camera_name}"
+        puts "✅ Camera added: #{camera_name}"
       else
-        puts "Failed to add camera to the database: #{camera_name}"
+        puts "❌ Failed to add camera: #{camera_name}"
       end
     end
 
