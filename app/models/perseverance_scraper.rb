@@ -1,10 +1,9 @@
 class PerseveranceScraper
   require "open-uri"
   require "json"
-  BASE_URL = "https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json"
+  BASE_URL = "https://mars.nasa.gov/mars2020/multimedia/raw-images/"
 
   attr_reader :rover
-
   def initialize
     @rover = Rover.find_by(name: "Perseverance")
   end
@@ -12,20 +11,16 @@ class PerseveranceScraper
   def scrape
     puts "🚀 Starting scrape for Perseverance..."
     create_photos
-    latest_photo = rover.photos.order(created_at: :desc).first
-    if latest_photo
-      puts "🛰️ Latest Perseverance photo → Sol #{latest_photo.sol}, Earth date #{latest_photo.created_at}, Camera #{latest_photo.camera.name}"
-    end
     puts "✅ Finished scraping Perseverance."
   end
 
   def collect_links
     begin
-      response = JSON.parse(URI.open("#{BASE_URL}&latest=true").read)
+      response = JSON.parse(URI.open("https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&latest=true").read)
       latest_sol_available = response["latest_sol"].to_i
       latest_sol_scraped = rover.photos.maximum(:sol).to_i
 
-      puts "📡 Perseverance → Latest sol available: #{latest_sol_available}, last scraped sol: #{latest_sol_scraped}"
+      puts "📡 Latest sol available: #{latest_sol_available}, last scraped sol: #{latest_sol_scraped}"
 
       if latest_sol_available <= latest_sol_scraped
         puts "✅ No new sols to scrape for Perseverance."
@@ -35,9 +30,11 @@ class PerseveranceScraper
       sols_to_scrape = ((latest_sol_scraped + 1)..latest_sol_available).to_a
       puts "🪐 Scraping new sols: #{sols_to_scrape.join(', ')}"
 
-      sols_to_scrape.map { |sol| "#{BASE_URL}&sol=#{sol}" }
+      sols_to_scrape.map do |sol|
+        "https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&sol=#{sol}"
+      end
     rescue StandardError => e
-      puts "❌ Error in collect_links: #{e.message}"
+      puts "❌ Error fetching sol info: #{e.message}"
       []
     end
   end
@@ -51,7 +48,9 @@ class PerseveranceScraper
       return
     end
 
-    collected.each { |url| scrape_photo_page(url) }
+    collected.each do |url|
+      scrape_photo_page(url)
+    end
   end
 
   def scrape_photo_page(url)
@@ -60,13 +59,8 @@ class PerseveranceScraper
       sol = data["sol"] || url[/sol=(\d+)/, 1]
       puts "🧩 Processing sol #{sol} (#{data['images'].size} images)..."
 
-      data["images"].each do |image|
-        next unless image["image_files"] && image["image_files"]["large"]
-
-        # Include both Full and Subframe
-        sample_type = image["sample_type"]
-        next unless %w[Full Subframe].include?(sample_type)
-
+      data['images'].each do |image|
+        next unless image['sample_type'] == 'Full'
         create_photo(image)
       end
     rescue OpenURI::HTTPError => e
@@ -77,10 +71,10 @@ class PerseveranceScraper
   end
 
   def create_photo(image)
-    sol = image["sol"]
-    earth_date = image["date_taken_utc"]
+    sol = image['sol']
+    earth_date = image['date_taken_utc']
     camera = camera_from_json(image)
-    link = image.dig("image_files", "large")
+    link = image.dig('image_files', 'large')
 
     if camera.is_a?(String)
       puts "⚠️ Camera not found: #{camera}"
@@ -90,26 +84,26 @@ class PerseveranceScraper
     photo = Photo.find_or_initialize_by(sol: sol, camera: camera, img_src: link, rover: rover)
     if photo.new_record?
       photo.log_and_save_if_new
-      puts "🪐 Added → Sol #{sol}, Earth date #{earth_date}, Camera #{camera.name}"
+      puts "🪐 Added new photo → Sol #{sol}, Earth date #{earth_date}, Camera #{camera.name}"
     end
   rescue => e
     puts "❌ Error creating photo for sol #{sol}: #{e.message}"
   end
 
   def camera_from_json(image)
-    camera_name = image.dig("camera", "instrument")
+    camera_name = image.dig('camera', 'instrument')
     camera = rover.cameras.find_by(name: camera_name) || rover.cameras.find_by(full_name: camera_name)
 
     if camera.nil?
-      puts "⚙️ Adding new camera: #{camera_name}"
+      puts "⚙️ Adding new camera to database: #{camera_name}"
       camera = rover.cameras.create(name: camera_name, full_name: camera_name)
-      puts(camera.persisted? ? "✅ Camera added: #{camera_name}" : "❌ Failed to add camera: #{camera_name}")
+
+      if camera.persisted?
+        puts "✅ Camera added: #{camera_name}"
+      else
+        puts "❌ Failed to add camera: #{camera_name}"
+      end
     end
-
-    camera
-  end
-end
-
 
     camera
   end
