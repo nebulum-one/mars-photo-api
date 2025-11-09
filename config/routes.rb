@@ -1,16 +1,12 @@
 Rails.application.routes.draw do
-  root 'static#explore'
-
-  get '/explore(/*whatevs)' => 'static#explore', :as => :explore
-
+  root to: 'static#explore'
+  
   namespace :api do
     namespace :v1 do
-      resources :rovers, only: [:show, :index] do
-        resources :photos, only: :index
-        resources :latest_photos, only: :index
-      end
-      resources :photos, only: :show
-      resources :manifests, only: :show
+      # ... existing routes ...
     end
   end
+  
+  # ADD THIS LINE:
+  post 'admin/trigger_scrapers', to: 'admin#trigger_scrapers'
 end
