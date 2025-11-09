@@ -13,6 +13,4 @@ Rails.application.routes.draw do
       resources :manifests, only: :show
     end
   end
-    # Scraper
-  post 'admin/trigger_scrapers', to: 'admin#trigger_scrapers'
 end
