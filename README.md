@@ -107,3 +107,7 @@ photos (array of photo objects per sol)
 
 Example:
 https://rovers.nebulum.one/api/v1/manifests/curiosity
+
+## Respository is maintained by Nebulum: 
+
+Reach out @ https://nebulum.one/
