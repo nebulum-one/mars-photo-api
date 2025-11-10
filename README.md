@@ -111,3 +111,4 @@ https://rovers.nebulum.one/api/v1/manifests/curiosity
 ## Respository is maintained by Nebulum: 
 
 Reach out @ https://nebulum.one/
+Find more projects at Nebulum Labs @ https://nebulum.one/labs/
