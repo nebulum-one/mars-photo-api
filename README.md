@@ -7,6 +7,50 @@ The Nebulum Mars Rover Photo API (https://rovers.nebulum.one/) provides live ima
 
 Data is served from https://rovers.nebulum.one.
 
+## Quick Start
+
+### How to Step Onto Mars
+
+You don't need a NASA badge to explore Mars. Start by querying the API. All API endpoints are available here:
+https://rovers.nebulum.one/
+
+```javascript
+fetch('https://rovers.nebulum.one/api/v1/rovers/curiosity/photos?earth_date=2026-02-15')
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+**Sample response:**
+
+```json
+{
+  "photos": [
+    {
+      "id": 91453,
+      "sol": 4809,
+      "camera": {
+        "id": 28,
+        "name": "MAHLI",
+        "rover_id": 2,
+        "full_name": "Mars Hand Lens Imager"
+      },
+      "img_src": "https://mars.nasa.gov/msl-raw-images/msss/04809/mhli/4809MH0008640011703843C00_DXXX.jpg",
+      "earth_date": "2026-02-15",
+      "rover": {
+        "id": 2,
+        "name": "Curiosity",
+        "landing_date": "2012-08-06",
+        "launch_date": null,
+        "status": null
+      }
+    }
+    // ...23 more photos
+  ]
+}
+```
+
+*Full response includes 24 photos from multiple cameras (MAHLI, FHAZ, RHAZ, NAV) for this sol.*
+
 ## Photo Attributes
 Each rover stores photos organized by:
 - **sol** – Martian rotation or day since landing
